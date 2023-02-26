@@ -1,6 +1,5 @@
 const express = require("express");
-const { FronteggContext, withAuthentication } = require("@frontegg/client");
-const jwt = require("jsonwebtoken");
+const { withAuthentication } = require("@frontegg/client");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
@@ -15,34 +14,37 @@ app.use(cors());
 const port = 13000;
 
 // app.use("/dashboard", withAuthentication({ roles: ["admin"] }));
-app.use("/admin", withAuthentication({ roles: ["admin"] }));
+//app.use("/admin", withAuthentication({ roles: ["Admin"] }));
 
 // Set up a route to handle user authorization using Frontegg's withAuthentication middleware
-app.get("/dashboard", withAuthentication({ roles: ["Admin"] }), (req, res) => {
-  console.log("Frontegg context:", req.frontegg);
-  const { email, roles } = req.frontegg.user;
-  const fegg = req.frontegg.user;
-  // for (var key in fegg) {
-  //   if (fegg.hasOwnProperty(key)) {
-  //     console.log(key);
-  //   }
-  // }
-  // console.log("diff");
-  // for (var key in res) {
-  //   if (res.hasOwnProperty(key)) {
-  //     console.log(key);
-  //   }
-  // }
-  console.log(email, roles);
-  res.send(
-    `You did it, let's get dinner soon ?, and the user email is ${email} and they have roles ${roles}`
-  );
-});
+app.get(
+  "/dashboard",
+  withAuthentication({ roles: ["ReadOnly", "Admin"] }),
+  (req, res) => {
+    console.log("Frontegg context:", req.frontegg);
+    const { email, roles } = req.frontegg.user;
+    const fegg = req.frontegg.user;
+    console.log(email, roles);
+    res.send(`the user email is ${email} and they have roles ${roles}`);
+  }
+);
+
+app.get(
+  "/prioritypage",
+  withAuthentication({ roles: ["Admin"] }),
+  (req, res) => {
+    console.log("Frontegg context:", req.frontegg);
+    const { email, roles } = req.frontegg.user;
+    const fegg = req.frontegg.user;
+    console.log(email, roles);
+    res.send(`the user email is ${email} and they have roles ${roles}`);
+  }
+);
 
 // Set up a route to handle admin authorization using Frontegg's withAuthentication middleware
 app.get(
   "/admin",
-  withAuthentication({ roles: ["admin"], permissions: ["read"] }),
+  withAuthentication({ roles: ["Admin"], permissions: ["read"] }),
   (req, res) => {
     res.send("Welcome, Admin!");
   }
